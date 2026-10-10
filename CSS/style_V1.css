@@ -1,0 +1,253 @@
+/* RESET */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  color-scheme: dark;
+
+  --background: #000000;
+  --text: #eeeeee;
+  --muted: #777777;
+  --poster-gap: clamp(8px, 1.1vw, 18px);
+}
+
+html {
+  min-height: 100%;
+  background: var(--background);
+}
+
+body {
+  min-height: 100vh;
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* STRUCTURE PRINCIPALE */
+
+.mainPage {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* NAVIGATION */
+
+.nav {
+  position: absolute;
+  z-index: 5;
+  top: clamp(20px, 4vh, 40px);
+  right: clamp(20px, 7vw, 140px);
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.nav a {
+  color: inherit;
+  transition: color 180ms ease;
+}
+
+.nav a:hover,
+.nav a:focus-visible {
+  color: var(--text);
+}
+
+/* GALERIE DE POSTERS */
+
+.movie-section {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  padding-top: clamp(125px, 17.9vh, 195px);
+  padding-bottom: 220px;
+}
+
+.movie-gallery {
+  --gallery-width: min(82vw, 1150px);
+  --card-count: 7;
+  --card-ratio: 0.58;
+  --card-height: calc(
+    (var(--gallery-width) - (var(--card-count) - 1) * var(--poster-gap))
+    / var(--card-count) / var(--card-ratio)
+  );
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--poster-gap);
+  width: var(--gallery-width);
+  margin-inline: auto;
+  overflow: visible;
+}
+
+.movie-card {
+  position: relative;
+  display: block;
+
+  flex: 1 1 0;
+  min-width: 0;
+  height: var(--card-height);
+
+  isolation: isolate;
+
+  --poster-image: none;
+
+  transition:
+    flex-grow 450ms ease,
+    filter 450ms ease;
+}
+
+.poster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+
+  filter: grayscale(1) brightness(0.8);
+  transform: scale(1);
+
+  transition:
+    filter 550ms ease,
+    transform 550ms cubic-bezier(.2, .75, .25, 1);
+}
+
+/* REFLET FLOU */
+
+.movie-card::after {
+  content: "";
+
+  position: absolute;
+  top: calc(100% + 22px);
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background-image: var(--poster-image);
+  background-position: center top;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+
+  transform: scaleY(-1);
+  transform-origin: center;
+
+  filter: grayscale(1) blur(2px);
+  opacity: 0.28;
+
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    rgb(0 0 0 / 65%) 18%,
+    rgb(0 0 0 / 25%) 48%,
+    transparent 82%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    rgb(0 0 0 / 65%) 18%,
+    rgb(0 0 0 / 25%) 48%,
+    transparent 82%
+  );
+
+  pointer-events: none;
+
+  transition:
+    opacity 450ms ease,
+    filter 450ms ease;
+}
+
+/* SURVOL */
+
+.movie-card:hover,
+.movie-card:focus-visible {
+  flex-grow: 2.4;
+  z-index: 3;
+}
+
+.movie-card:hover .poster,
+.movie-card:focus-visible .poster {
+  filter: grayscale(0) brightness(1);
+  transform: scale(1.035);
+}
+
+.movie-card:hover::after,
+.movie-card:focus-visible::after {
+  filter: grayscale(0) blur(3px);
+  opacity: 0.34;
+}
+
+.movie-gallery:has(.movie-card:hover) .movie-card:not(:hover) {
+  filter: brightness(0.65);
+}
+
+/* ACCESSIBILITÉ */
+
+.movie-card:focus-visible {
+  outline: 2px solid #dddddd;
+  outline-offset: 5px;
+}
+
+/* AFFICHE INDISPONIBLE */
+
+.poster-missing {
+  background: #292929;
+}
+
+/* ARRIÈRE-PLAN */
+
+.background-title {
+  position: absolute;
+  z-index: 1;
+
+  left: 50%;
+  bottom: -0.23em;
+  transform: translateX(-50%);
+
+  width: max-content;
+  max-width: 100%;
+
+  color: #202020;
+  font-size: clamp(100px, 20vw, 390px);
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.075em;
+  white-space: nowrap;
+
+  user-select: none;
+  pointer-events: none;
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .movie-gallery {
+    --gallery-width: 92vw;
+    --card-ratio: 0.48;
+    --poster-gap: 7px;
+  }
+
+  .movie-card:hover,
+  .movie-card:focus-visible {
+    flex-grow: 1.5;
+  }
+
+  .movie-card::after {
+    top: calc(100% + 14px);
+    opacity: 0.18;
+  }
+}
