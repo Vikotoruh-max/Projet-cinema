@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <title>Cinéma — Recherche</title>
+  <link rel="stylesheet" href="../CSS/style_V4.css">
+</head>
+
+<body>
+  <main class="mainPage">
+
+    <nav class="nav" aria-label="Menu de navigation">
+      <a href="index.html">Accueil</a>
+      <span>/</span>
+      <a href="search.html">Recherche</a>
+    </nav>
+
+    <section class="movieSection" aria-label="Recherche de films">
+      <div class="searchBar" role="search">
+        <input class="searchInput" type="search" placeholder="Rechercher un film…" aria-label="Rechercher un film" autocomplete="off" autofocus>
+      </div>
+
+      <div class="movieRows"></div>
+
+      <p class="statusMessage" role="status"></p>
+
+      <button class="moreButton" type="button" hidden>Afficher plus de films</button>
+    </section>
+
+    <div class="backgroundTitle" aria-hidden="true">LES AMPHIS</div>
+
+    <button class="topButton" type="button" hidden>Revenir en haut</button>
+
+  </main>
+
+  <script src="../Javascript/common.js"></script>
+  <script src="../Javascript/search.js"></script>
+</body>
+</html>
