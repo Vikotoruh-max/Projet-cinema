@@ -1,0 +1,358 @@
+/* RESET */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  color-scheme: dark;
+
+  --background: #000000;
+  --text: #eeeeee;
+  --muted: #777777;
+  --poster-gap: clamp(8px, 1.1vw, 18px);
+}
+
+html {
+  min-height: 100%;
+  background: var(--background);
+}
+
+body {
+  min-height: 100vh;
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* STRUCTURE PRINCIPALE */
+
+.mainPage {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow: hidden;
+  overflow: clip;
+}
+
+/* NAVIGATION */
+
+.nav {
+  position: fixed;
+  z-index: 5;
+  top: clamp(14px, 3vh, 30px);
+  right: clamp(20px, 7vw, 140px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: rgb(0 0 0 / 60%);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.nav a {
+  color: inherit;
+  transition: color 180ms ease;
+}
+
+.nav a:hover,
+.nav a:focus-visible {
+  color: var(--text);
+}
+
+/* BOUTON BACK TO THE TOP */
+
+.top-button {
+  position: fixed;
+  z-index: 5;
+  bottom: clamp(14px, 3vh, 30px);
+  right: clamp(20px, 7vw, 140px);
+
+  padding: 10px 18px;
+
+  background: rgb(0 0 0 / 60%);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--muted);
+  border: 1px solid #333333;
+  border-radius: 999px;
+
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+
+  transition:
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.top-button[hidden] {
+  display: none;
+}
+
+.top-button:hover,
+.top-button:focus-visible {
+  color: var(--text);
+  border-color: #aaaaaa;
+}
+
+.top-button:focus-visible {
+  outline: 2px solid #dddddd;
+  outline-offset: 4px;
+}
+
+/* SECTION DES FILMS */
+
+.movie-section {
+  --gallery-width: min(82vw, 1150px);
+  --card-count: 7;
+  --card-height: clamp(380px, 66vh, 800px);
+  --card-full-ratio: 0.675;
+
+  --card-rest: calc(
+    (var(--gallery-width) - (var(--card-count) - 1) * var(--poster-gap))
+    / var(--card-count)
+  );
+
+  --card-full: min(
+    calc(var(--card-height) * var(--card-full-ratio)),
+    calc(var(--gallery-width) * 0.42)
+  );
+
+  --card-other: calc(
+    (var(--gallery-width) - (var(--card-count) - 1) * var(--poster-gap) - var(--card-full))
+    / (var(--card-count) - 1)
+  );
+
+  --row-gap: calc(var(--card-height) * 0.28 + 40px);
+
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  padding-top: clamp(90px, 12vh, 150px);
+  padding-bottom: clamp(200px, 22vw, 420px);
+}
+
+.movie-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--row-gap);
+}
+
+.movie-gallery {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--poster-gap);
+  width: var(--gallery-width);
+  margin-inline: auto;
+}
+
+/* CARTE */
+
+.movie-card {
+  position: relative;
+  display: block;
+
+  flex: 0 0 auto;
+  width: var(--card-rest);
+  height: var(--card-height);
+
+  isolation: isolate;
+
+  --poster-image: none;
+
+  transition:
+    width 450ms ease,
+    filter 450ms ease;
+}
+
+/* AFFICHE */
+
+.poster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+
+  filter: grayscale(1) brightness(0.8);
+
+  transition: filter 550ms ease;
+}
+
+/* REFLET FLOU */
+
+.movie-card::after {
+  content: "";
+
+  position: absolute;
+  top: calc(100% + 22px);
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background-image: var(--poster-image);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  transform: scaleY(-1);
+  transform-origin: center;
+
+  filter: grayscale(1) blur(2px);
+  opacity: 0.28;
+
+  -webkit-mask-image: linear-gradient(
+    to top,
+    #000 0%,
+    rgb(0 0 0 / 65%) 12%,
+    rgb(0 0 0 / 25%) 30%,
+    transparent 48%
+  );
+  mask-image: linear-gradient(
+    to top,
+    #000 0%,
+    rgb(0 0 0 / 65%) 12%,
+    rgb(0 0 0 / 25%) 30%,
+    transparent 48%
+  );
+
+  pointer-events: none;
+
+  transition:
+    opacity 450ms ease,
+    filter 450ms ease;
+}
+
+/* SURVOL ET FOCUS */
+
+.movie-card:hover,
+.movie-card:focus-visible {
+  width: var(--card-full);
+  z-index: 3;
+}
+
+.movie-card:hover .poster,
+.movie-card:focus-visible .poster {
+  filter: grayscale(0) brightness(1);
+}
+
+.movie-card:hover::after,
+.movie-card:focus-visible::after {
+  filter: grayscale(0) blur(3px);
+  opacity: 0.34;
+}
+
+.movie-gallery:has(.movie-card:hover) .movie-card:not(:hover),
+.movie-gallery:has(.movie-card:focus-visible) .movie-card:not(:focus-visible) {
+  width: var(--card-other);
+  filter: brightness(0.65);
+}
+
+.movie-card:focus-visible {
+  outline: 2px solid #dddddd;
+  outline-offset: 5px;
+}
+
+/* BOUTON */
+
+.status {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.status:empty {
+  display: none;
+}
+
+.more-button {
+  display: block;
+  margin: var(--row-gap) auto 0;
+  padding: 14px 32px;
+
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid #333333;
+  border-radius: 999px;
+
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+
+  transition:
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.more-button[hidden] {
+  display: none;
+}
+
+.more-button:hover:not(:disabled),
+.more-button:focus-visible {
+  color: var(--text);
+  border-color: #aaaaaa;
+}
+
+.more-button:focus-visible {
+  outline: 2px solid #dddddd;
+  outline-offset: 4px;
+}
+
+.more-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+/* ARRIÈRE-PLAN */
+
+.background-title {
+  position: absolute;
+  z-index: 1;
+
+  left: 50%;
+  bottom: -0.23em;
+  transform: translateX(-50%);
+
+  width: max-content;
+  max-width: 100%;
+
+  color: #202020;
+  font-size: clamp(100px, 20vw, 390px);
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.075em;
+  white-space: nowrap;
+
+  user-select: none;
+  pointer-events: none;
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .movie-section {
+    --gallery-width: 92vw;
+    --poster-gap: 7px;
+    --card-height: clamp(280px, 52vh, 480px);
+  }
+
+  .movie-card::after {
+    top: calc(100% + 14px);
+    opacity: 0.18;
+  }
+}

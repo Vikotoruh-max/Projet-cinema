@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <title>Cinéma — Accueil</title>
+  <link rel="stylesheet" href="../CSS/style.css">
+</head>
+
+<body>
+  <main class="mainPage">
+
+    <!-- Navigation -->
+    <nav class="nav" aria-label="Menu de navigation">
+      <a href="index.html">Accueil</a>
+      <span>/</span>
+      <a href="search.html">Recherche</a>
+    </nav>
+
+    <!-- Sélection de films -->
+    <section class="movie-section" aria-label="Sélection de films">
+      <div class="movie-rows" id="movie-rows"></div>
+
+      <p class="status" id="status" role="status"></p>
+
+      <button class="more-button" id="more-button" type="button" hidden>
+        Afficher plus de films
+      </button>
+    </section>
+
+    <!-- Déco -->
+    <div class="background-title" aria-hidden="true">LES AMPHIS</div>
+
+    <button class="top-button" id="top-button" type="button" hidden>
+      Revenir en haut
+    </button>
+
+      <script src="../Javascript/index.js"></script>
+
+
+  </main>
+</body>
+</html>
