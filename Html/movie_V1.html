@@ -1,0 +1,34 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <title>Les Amphis — Film</title>
+  <link rel="stylesheet" href="../CSS/style_V5.css">
+</head>
+<body>
+  <main class="mainPage moviePage">
+    <nav class="nav" aria-label="Menu de navigation">
+      <a href="index_V5.html">Accueil</a>
+      <span>/</span>
+      <a href="search_V2.html">Recherche</a>
+    </nav>
+
+    <section id="movieDetail" class="movieDetail"
+             aria-label="Description du film" aria-busy="true">
+    </section>
+
+    <p class="statusMessage" id="movieStatus" role="status"></p>
+
+    <div class="backgroundTitle" aria-hidden="true">LES AMPHIS</div>
+
+    <button class="topButton" type="button" hidden>
+      Revenir en haut
+    </button>
+  </main>
+
+  <script type="module" src="../Javascript/movie.js"></script>
+</body>
+</html>

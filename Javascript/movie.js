@@ -1,196 +1,131 @@
-
+import { hasPoster, toLargePoster } from "./card.js";
 import { fetchOmdb } from "./omdb.js";
 import { initTopButton } from "./topButton.js";
+import { recallPoster } from "./transition.js";
 
 // Éléments de la page
-const movieDetail = document.querySelector("#movieDetail");
-const movieStatus = document.querySelector("#movieStatus");
+const page = document.querySelector(".moviePage");
+const detail = document.querySelector(".movieDetail");
+const info = document.querySelector(".movieInfo");
+const statusMessage = document.querySelector(".statusMessage");
 
-// Identifiant IMDb transmis par la carte du film
-const params = new URLSearchParams(window.location.search);
-const movieId = params.get("id");
+// Film demandé dans l'adresse
+const movieId = new URLSearchParams(window.location.search).get("id");
 
-// Affiche disponible ?
-function hasPoster(movie) {
-  return movie.Poster && movie.Poster !== "N/A";
+// Affiche affichée
+let poster = null;
+
+// Valeur utilisable ?
+function isKnown(value) {
+  return value && value !== "N/A";
 }
 
-// Crée un élément texte sans interpréter de HTML
-function createText(tag, className, value) {
+// Crée un élément texte
+function createText(tag, text, className = "") {
+  if (!isKnown(text)) {
+    return null;
+  }
+
   const element = document.createElement(tag);
   element.className = className;
-  element.textContent = value || "";
+  element.textContent = text;
   return element;
 }
 
-// Ajoute un bloc de détails
-function addDetail(parent, label, value) {
-  if (!value || value === "N/A") return;
-
-  const line = document.createElement("p");
-  line.className = "movieInfoLine";
-
-  const title = document.createElement("span");
-  title.className = "movieInfoLabel";
-  title.textContent = `${label} : `;
-
-  const content = document.createElement("span");
-  content.textContent = value;
-
-  line.append(title, content);
-  parent.append(line);
-}
-
-// Ajoute une section avec un titre
-function addSection(parent, title, content) {
-  if (!content || content === "N/A") return;
-
-  const section = document.createElement("section");
-  section.className = "movieInfoSection";
-
-  section.append(
-    createText("h2", "movieSectionTitle", title),
-    createText("p", "movieSectionText", content)
-  );
-
-  parent.append(section);
-}
-
-// Génère toute la page
-function renderMovie(movie) {
-  document.title = `Les Amphis — ${movie.Title}`;
-
-  const layout = document.createElement("div");
-  layout.className = "movieLayout";
-
-  // Colonne gauche : affiche
-  const posterColumn = document.createElement("div");
-  posterColumn.className = "moviePosterColumn";
-
-  const poster = document.createElement("img");
+// Affiche l'affiche du film
+function showPoster(src) {
+  poster = document.createElement("img");
   poster.className = "moviePoster";
-  poster.alt = `Affiche de ${movie.Title}`;
+  poster.alt = "Affiche du film";
+  poster.src = src;
+  detail.prepend(poster);
 
-  if (hasPoster(movie)) {
-    poster.src = movie.Poster;
-  } else {
-    posterColumn.classList.add("noPoster");
-    poster.alt = "Affiche indisponible";
-  }
-
-  posterColumn.append(poster);
-
-  // Colonne droite : informations
-  const info = document.createElement("div");
-  info.className = "movieInfo";
-
-  info.append(
-    createText("p", "movieEyebrow", "LES AMPHIS"),
-    createText("h1", "movieTitle", movie.Title)
-  );
-
-  // Informations principales
-  const metadata = document.createElement("div");
-  metadata.className = "movieMetadata";
-
-  [movie.Year, movie.Rated, movie.Runtime, movie.Genre]
-    .filter(value => value && value !== "N/A")
-    .forEach(value => {
-      metadata.append(
-        createText("span", "movieMetadataItem", value)
-      );
-    });
-
-  info.append(metadata);
-
-  // Notes
-  const ratings = document.createElement("div");
-  ratings.className = "movieRatings";
-
-  if (movie.imdbRating && movie.imdbRating !== "N/A") {
-    const imdb = document.createElement("p");
-    imdb.className = "movieRating";
-
-    const star = document.createElement("span");
-    star.className = "movieStar";
-    star.textContent = "★";
-
-    imdb.append(
-      star,
-      document.createTextNode(` ${movie.imdbRating}/10 IMDb`)
-    );
-
-    ratings.append(imdb);
-  }
-
-  if (movie.Metascore && movie.Metascore !== "N/A") {
-    ratings.append(
-      createText("p", "movieRating", `Metascore : ${movie.Metascore}/100`)
-    );
-  }
-
-  if (ratings.children.length) {
-    info.append(ratings);
-  }
-
-  // Synopsis
-  addSection(info, "Synopsis", movie.Plot);
-
-  // Réalisation et scénario
-  addDetail(info, "Réalisateur", movie.Director);
-  addDetail(info, "Scénario", movie.Writer);
-
-  // Casting
-  addSection(info, "Casting", movie.Actors);
-
-  // Informations complémentaires
-  const extra = document.createElement("section");
-  extra.className = "movieExtra";
-
-  addDetail(extra, "Date de sortie", movie.Released);
-  addDetail(extra, "Durée", movie.Runtime);
-  addDetail(extra, "Langue", movie.Language);
-  addDetail(extra, "Pays", movie.Country);
-  addDetail(extra, "Récompenses", movie.Awards);
-  addDetail(extra, "Box-office", movie.BoxOffice);
-  addDetail(extra, "Votes IMDb", movie.imdbVotes);
-
-  if (extra.children.length) {
-    info.append(
-      createText("h2", "movieSectionTitle", "Informations"),
-      extra
-    );
-  }
-
-  layout.append(posterColumn, info);
-  movieDetail.replaceChildren(layout);
-  movieDetail.setAttribute("aria-busy", "false");
+  page.style.setProperty("--posterImage", `url("${src}")`);
 }
 
-// Chargement du film
+// Remplit les informations
+function showInfo(movie) {
+  document.title = `Cinéma — ${movie.Title}`;
+
+  const meta = [movie.Year, movie.Runtime, movie.Genre, movie.Rated]
+    .filter(isKnown)
+    .join(" · ");
+
+  const ratings = [
+    isKnown(movie.imdbRating) && `★ ${movie.imdbRating} / 10 IMDb`,
+    isKnown(movie.Metascore) && `Metascore ${movie.Metascore}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const facts = document.createElement("dl");
+  facts.className = "movieFacts";
+
+  [
+    ["Réalisateur", movie.Director],
+    ["Scénario", movie.Writer],
+    ["Casting", movie.Actors],
+    ["Sortie", movie.Released],
+    ["Langue", movie.Language],
+    ["Pays", movie.Country],
+    ["Récompenses", movie.Awards],
+    ["Box-office", movie.BoxOffice],
+  ].forEach(([label, value]) => {
+    if (isKnown(value)) {
+      facts.append(createText("dt", label), createText("dd", value));
+    }
+  });
+
+  const blocks = [
+    createText("h1", movie.Title, "movieTitle"),
+    createText("p", meta, "movieMeta"),
+    createText("p", ratings, "movieMeta"),
+    createText("p", movie.Plot, "moviePlot"),
+    facts.children.length > 0 ? facts : null,
+  ].filter(Boolean);
+
+  // Apparition échelonnée
+  blocks.forEach((block, index) => {
+    block.style.setProperty("--fadeIndex", index);
+  });
+
+  info.replaceChildren(...blocks);
+}
+
+// Charge le film
 async function loadMovie() {
   if (!movieId) {
-    movieStatus.textContent =
+    statusMessage.textContent =
       "Aucun film sélectionné. Retournez à l'accueil pour choisir un film.";
-    movieDetail.setAttribute("aria-busy", "false");
     return;
   }
 
-  movieStatus.textContent = "Chargement du film…";
+  // Affiche déjà connue : pas d'attente
+  const savedSrc = recallPoster(movieId);
+
+  if (savedSrc) {
+    showPoster(savedSrc);
+  } else {
+    statusMessage.textContent = "Chargement du film…";
+  }
 
   try {
-    // Utilise la fonction existante du projet
     const movie = await fetchOmdb({ i: movieId, plot: "full" });
 
-    renderMovie(movie);
-    movieStatus.textContent = "";
+    if (!poster && hasPoster(movie)) {
+      showPoster(toLargePoster(movie.Poster));
+    }
+
+    if (poster) {
+      poster.alt = `Affiche de ${movie.Title}`;
+    }
+
+    showInfo(movie);
+    statusMessage.textContent = "";
   } catch (error) {
     console.error("Failed to load movie:", error);
-
-    movieStatus.textContent =
+    statusMessage.textContent =
       "Impossible de charger ce film. Vérifiez votre connexion puis réessayez.";
-
-    movieDetail.setAttribute("aria-busy", "false");
   }
 }
 

@@ -1,10 +1,12 @@
+import { rememberPoster } from "./transition.js";
+
 // Affiche disponible ?
 export function hasPoster(movie) {
   return movie.Poster && movie.Poster !== "N/A";
 }
 
 // Version grande de l'affiche
-function toLargePoster(url) {
+export function toLargePoster(url) {
   return url.replace(/_SX\d+/, "_SX700");
 }
 
@@ -12,7 +14,7 @@ function toLargePoster(url) {
 export function createCard(movie, index) {
   const card = document.createElement("a");
   card.className = "movieCard";
-  card.style.setProperty("--cardIndex", index);
+  card.style.setProperty("--fadeIndex", index);
   card.href = `movie.html?id=${encodeURIComponent(movie.imdbID)}`;
   card.setAttribute("aria-label", `Découvrir ${movie.Title}`);
 
@@ -33,6 +35,9 @@ export function createCard(movie, index) {
   );
 
   card.style.setProperty("--posterImage", `url("${largeUrl}")`);
+
+  // Prépare la transition de page
+  card.addEventListener("click", () => rememberPoster(movie.imdbID, poster));
   card.appendChild(poster);
 
   return card;
