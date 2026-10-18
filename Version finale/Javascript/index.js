@@ -22,7 +22,7 @@ let cursor = 0;
 // Dernière erreur rencontrée en chargeant un film
 let lastError = null;
 
-// Récupérer un film grâce à son identifiant (null si erreur)
+// Récupérer un film grâce à son identifiant
 async function getMovie(id) {
   try {
     const movie = await fetchOmdb({ i: id });

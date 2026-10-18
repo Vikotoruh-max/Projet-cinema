@@ -1,4 +1,4 @@
-// Identifiants IMDb des films
+// Identifiants IMDb des films de la page d'accueil
 export const movieIds = [
   "tt0910970", "tt0114709", "tt0120363", "tt0435761", "tt1979376", "tt0266543", "tt2277860",
   "tt2380307", "tt2096673", "tt22022452", "tt0198781", "tt1453405", "tt0317705", "tt3606756",

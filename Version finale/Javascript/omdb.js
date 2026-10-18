@@ -12,7 +12,7 @@ export async function fetchOmdb(params) {
   // Envoyer la requête
   const response = await fetch(url);
 
-  // Lire la réponse (data reste vide si elle est illisible)
+  // Lire la réponse
   let data = {};
   try {
     data = await response.json();
