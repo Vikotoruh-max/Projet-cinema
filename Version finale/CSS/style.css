@@ -1,0 +1,505 @@
+/* Réinitialisation des marges */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Couleurs et espacement communs */
+:root {
+  color-scheme: dark;
+  --background: #000000;
+  --text: #eeeeee;
+  --muted: #777777;
+  --posterGap: clamp(8px, 1.1vw, 18px);
+}
+
+/* Fond noir de la page */
+html {
+  background: var(--background);
+}
+
+/* Texte par défaut */
+body {
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Liens sans soulignement */
+a {
+  text-decoration: none;
+}
+
+/* Page principale */
+.mainPage {
+  position: relative;
+  min-height: 100vh;
+  overflow: clip;
+}
+
+/* Menu et bouton flottants */
+.nav,
+.topButton {
+  position: fixed;
+  z-index: 5;
+  right: clamp(20px, 7vw, 140px);
+  background: rgb(0 0 0 / 60%);
+  backdrop-filter: blur(8px);
+}
+
+/* Menu de navigation */
+.nav {
+  top: clamp(14px, 3vh, 30px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.nav a {
+  color: inherit;
+  transition: color 180ms ease;
+}
+
+.nav a:hover,
+.nav a:focus-visible {
+  color: var(--text);
+}
+
+/* Boutons arrondis */
+.moreButton,
+.topButton {
+  color: var(--muted);
+  border: 1px solid #333333;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.topButton {
+  bottom: clamp(14px, 3vh, 30px);
+  padding: 10px 18px;
+}
+
+.moreButton {
+  display: block;
+  margin: var(--rowGap) auto 0;
+  padding: 14px 32px;
+  background: transparent;
+}
+
+.moreButton[hidden] {
+  display: none;
+}
+
+.moreButton:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+/* Boutons au survol et contour au clavier */
+.moreButton:hover,
+.moreButton:focus-visible,
+.topButton:hover,
+.topButton:focus-visible {
+  color: var(--text);
+  border-color: #aaaaaa;
+}
+
+.movieCard:focus-visible,
+.moreButton:focus-visible,
+.topButton:focus-visible,
+.searchInput:focus-visible {
+  outline: 2px solid #dddddd;
+  outline-offset: 5px;
+}
+
+/* Section des films : tailles des rangées de sept affiches */
+.movieSection {
+  --galleryWidth: min(82vw, 1150px);
+  --cardCount: 7;
+  --cardHeight: clamp(380px, 66vh, 800px);
+  --cardFullRatio: 0.675;
+
+  /* Largeur d'une carte au repos */
+  --cardRest: calc(
+    (var(--galleryWidth) - (var(--cardCount) - 1) * var(--posterGap))
+    / var(--cardCount)
+  );
+
+  /* Largeur d'une carte survolée (proportion d'une affiche entière) */
+  --cardFull: min(
+    calc(var(--cardHeight) * var(--cardFullRatio)),
+    calc(var(--galleryWidth) * 0.42)
+  );
+
+  /* Largeur des cartes voisines, resserrées pendant le survol */
+  --cardOther: calc(
+    (
+      var(--galleryWidth) -
+      (var(--cardCount) - 1) * var(--posterGap) -
+      var(--cardFull)
+    ) / (var(--cardCount) - 1)
+  );
+
+  /* Espace entre deux rangées (laisse la place au reflet) */
+  --rowGap: calc(var(--cardHeight) * 0.28 + 40px);
+
+  position: relative;
+  z-index: 2;
+  padding-top: clamp(90px, 12vh, 150px);
+  padding-bottom: clamp(200px, 22vw, 420px);
+}
+
+/* Liste des rangées et rangée d'affiches */
+.movieRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rowGap);
+}
+
+.movieGallery {
+  display: flex;
+  justify-content: center;
+  gap: var(--posterGap);
+  width: var(--galleryWidth);
+  margin: 0 auto;
+}
+
+/* Apparition en fondu */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fondu échelonné : cartes de film et blocs d'informations */
+.movieCard,
+.movieInfo > * {
+  animation: fadeIn 600ms ease both;
+  animation-delay: calc(var(--fadeIndex) * 120ms);
+}
+
+/* Carte d'un film */
+.movieCard {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--cardRest);
+  height: var(--cardHeight);
+  transition:
+    width 450ms ease,
+    filter 450ms ease;
+}
+
+/* Affiche, rognée sur les côtés */
+.poster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) brightness(0.8);
+  transition: filter 550ms ease;
+}
+
+/* Titre superposé à l'affiche */
+.movieCardTitle {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 24px 8px 10px;
+  background: linear-gradient(transparent, rgb(0 0 0 / 90%));
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+
+/* Reflet flou sous l'affiche */
+.movieCard::after {
+  content: "";
+  position: absolute;
+  top: calc(100% + 22px);
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--posterImage);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  transform: scaleY(-1);
+  filter: grayscale(1) blur(2px);
+  opacity: 0.28;
+  mask-image: linear-gradient(
+    to top,
+    #000 0%,
+    rgb(0 0 0 / 65%) 12%,
+    rgb(0 0 0 / 25%) 30%,
+    transparent 48%
+  );
+  pointer-events: none;
+  transition:
+    opacity 450ms ease,
+    filter 450ms ease;
+}
+
+/* Carte survolée : s'élargit, affiche et reflet en couleur */
+.movieCard:hover,
+.movieCard:focus-visible {
+  width: var(--cardFull);
+  z-index: 3;
+}
+
+.movieCard:hover .poster,
+.movieCard:focus-visible .poster {
+  filter: grayscale(0) brightness(1);
+}
+
+.movieCard:hover::after,
+.movieCard:focus-visible::after {
+  filter: grayscale(0) blur(3px);
+  opacity: 0.34;
+}
+
+/* Cartes voisines resserrées et assombries */
+.movieGallery:has(.movieCard:hover) .movieCard:not(:hover),
+.movieGallery:has(.movieCard:focus-visible)
+  .movieCard:not(:focus-visible) {
+  width: var(--cardOther);
+  filter: brightness(0.65);
+}
+
+/* Résumé du film, affiché après un survol prolongé */
+.movieSynopsis {
+  position: absolute;
+  z-index: 4;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  max-height: 55%;
+  padding: 14px 12px;
+  overflow: hidden;
+  background: rgb(0 0 0 / 90%);
+  color: #ffffff;
+  font-size: clamp(11px, 0.9vw, 14px);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition:
+    opacity 250ms ease,
+    transform 250ms ease,
+    visibility 0s linear 250ms;
+}
+
+.movieCard.showSynopsis .movieSynopsis {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition-delay: 0s;
+}
+
+/* Barre de recherche */
+.searchBar {
+  width: min(var(--galleryWidth), 560px);
+  margin: 0 auto 60px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 14px 24px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid #333333;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 16px;
+}
+
+.searchInput::placeholder {
+  color: var(--muted);
+}
+
+/* Message d'état (chargement, erreur, aucun résultat) */
+.statusMessage {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.statusMessage:empty {
+  display: none;
+}
+
+/* Page d'un film : affiche à gauche, informations à droite */
+.movieDetail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: clamp(28px, 5vw, 80px);
+  width: var(--galleryWidth);
+  margin: 0 auto;
+}
+
+/* Affiche du film, à la taille d'une carte survolée */
+.moviePoster {
+  flex: 0 0 auto;
+  width: var(--cardFull);
+  height: var(--cardHeight);
+  object-fit: cover;
+  view-transition-name: moviePoster;
+}
+
+.movieInfo {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.movieDetail .statusMessage {
+  flex-basis: 100%;
+}
+
+/* Textes de la fiche */
+.movieTitle {
+  font-size: clamp(36px, 5vw, 72px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  overflow-wrap: anywhere;
+}
+
+.movieMeta {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.moviePlot {
+  max-width: 60ch;
+  margin-top: 28px;
+  color: #b8b8b8;
+  line-height: 1.8;
+}
+
+/* Détails du film (réalisateur, casting, dates…) */
+.movieFacts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 12px 24px;
+  margin-top: 32px;
+  color: #b8b8b8;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.movieFacts dt {
+  color: var(--muted);
+}
+
+/* Lueur floue de l'affiche en arrière-plan de la fiche */
+.moviePage::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-image: var(--posterImage);
+  background-position: center;
+  background-size: cover;
+  filter: blur(70px) brightness(0.45);
+  opacity: 0.45;
+  transform: scale(1.15);
+  pointer-events: none;
+}
+
+/* Grand titre de fond */
+.backgroundTitle {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  bottom: 0.2em;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 100%;
+  color: #202020;
+  font-size: clamp(100px, 15vw, 390px);
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.075em;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Transition entre les pages (désactivée si les animations sont réduites) */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* Trajet de l'affiche d'une page à l'autre */
+::view-transition-group(moviePoster) {
+  animation-duration: 600ms;
+  animation-timing-function: cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+::view-transition-old(moviePoster),
+::view-transition-new(moviePoster) {
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .movieSection {
+    --galleryWidth: 92vw;
+    --posterGap: 7px;
+    --cardHeight: clamp(280px, 52vh, 480px);
+  }
+
+  .movieCard::after {
+    top: calc(100% + 14px);
+    opacity: 0.18;
+  }
+
+  .movieSynopsis {
+    padding: 8px;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .moviePoster {
+    width: min(70vw, 300px);
+    height: auto;
+    aspect-ratio: var(--cardFullRatio);
+  }
+}
+
+/* Animations réduites : durées quasi nulles */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
